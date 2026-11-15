@@ -1,0 +1,4 @@
+// main 是程序入口。print 每次输出一行。
+const main = fn() -> void {
+    print("你好，世界！");
+};

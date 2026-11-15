@@ -1,0 +1,6 @@
+internal var value: i32 = 7;
+private const secret: i32 = 9;
+const read = fn() -> i32 { return value + secret; };
+const Box = struct {
+    internal var item: i32 = 5;
+};

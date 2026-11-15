@@ -1,0 +1,7 @@
+var Math = struct {};
+Math.offset = 4;
+Math.add = fn(a: i32, b: i32) -> i32 { return a + b; };
+const main = fn() -> void {
+    print(Math.offset);
+    print(Math.add(2, 3));
+};

@@ -1,0 +1,5 @@
+.zig-cache/
+zig-out/
+.saphine-cache/
+.langc-cache/
+.zig-global-cache/

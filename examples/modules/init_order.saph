@@ -1,0 +1,4 @@
+print("before import");
+use child: "./lib/trace";
+print("after import");
+const main = fn() -> void { print(child.stamp); };

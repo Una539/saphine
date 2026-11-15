@@ -1,0 +1,13 @@
+var Counter = struct { count: i32 };
+Counter.add = fn(self: *Self, amount: i32) -> void {
+    self.count += amount;
+};
+const increment = fn(counter: *Counter) -> void {
+    counter.add(1);
+};
+const main = fn() -> void {
+    var counter = Counter { .count = 0 };
+    counter.add(5);
+    increment(&counter);
+    print(counter.count);
+};

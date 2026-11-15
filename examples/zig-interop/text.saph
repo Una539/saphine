@@ -1,0 +1,7 @@
+use text: "./modules/text.zig";
+use std: "std";
+
+const main = fn() -> void {
+    std.print(text.startsWith("hello", "he"));
+    std.print(text.startsWith("hello", "world"));
+};

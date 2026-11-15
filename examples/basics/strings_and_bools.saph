@@ -1,0 +1,9 @@
+const show = fn(text: []const u8, ready: bool) -> void {
+    print(text);
+    print(ready);
+};
+const main = fn() -> void {
+    show("路径 C:\\temp", true);
+    show("她说：\"你好\"", false);
+    print("第一行\n第二行");
+};

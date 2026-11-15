@@ -1,0 +1,12 @@
+const square = fn(x: i32) -> i32 { return x * x; };
+const double = fn(x: i32) -> i32 { return x + x; };
+const apply = fn(f: fn(x: i32) -> i32, x: i32) -> i32 {
+    return f(x);
+};
+const main = fn() -> void {
+    var transform = square;
+    const saved = transform;
+    transform = double;
+    print(apply(saved, 5));
+    print(apply(transform, 5));
+};

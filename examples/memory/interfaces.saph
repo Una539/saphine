@@ -1,0 +1,44 @@
+use memory: "zig:saphine_runtime";
+const Node = struct { value: i32 };
+const Derived = struct { use base: Node; extra: i32 };
+const Request = struct { use scratch: memory.Arena; };
+const Nested = struct { use request: Request; };
+const make = fn(context mem: *memory.Manager, n: i32) -> mem.Ptr(Node) {
+    const result: mem.Ptr(Node) = mem.create(Node { .value = n });
+    return result;
+};
+const inspect = fn(p: *memory.Ptr(Node)) -> void { print(p.value); };
+const inspectAcrossCollection = fn(p: *memory.Ptr(Node), gc: memory.GC) -> void {
+    gc.collect();
+    inspect(p);
+};
+var offset = 9;
+const consumeBase = fn(p: *Node) -> void { p.value += offset; };
+const callDerived = fn(callback: fn(p: *Derived) -> void, p: *Derived) -> void {
+    callback(p);
+};
+const inspectDerived = fn(callback: fn(p: *memory.Ptr(Derived)) -> void, p: *memory.Ptr(Derived)) -> void {
+    callback(p);
+};
+const main = fn() -> void {
+    var heap = memory.Heap.new();
+    var state = Nested { .request = .{ .scratch = memory.Arena.new(heap) } };
+    defer state.request.scratch.deinit();
+    var arc = memory.Arc.new(heap);
+    var gc = memory.GC.new();
+    using state;
+    const manual = make(heap, 1);
+    defer heap.destroy(manual);
+    inspect(manual);
+    inspect(make(2));
+    const strong = make(arc, 3);
+    inspect(&strong);
+    inspect(make(gc, 4));
+    const derived = arc.create(Derived { .base = .{ .value = 5 }, .extra = 9 });
+    inspect(derived);
+    inspectAcrossCollection(gc.create(Derived { .base = .{ .value = 6 }, .extra = 9 }), gc);
+    var native = Derived { .base = .{ .value = 3 }, .extra = 0 };
+    callDerived(consumeBase, &native);
+    inspect(&native);
+    inspectDerived(inspect, arc.create(Derived { .base = .{ .value = 13 }, .extra = 1 }));
+};

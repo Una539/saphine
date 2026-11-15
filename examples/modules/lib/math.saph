@@ -1,0 +1,3 @@
+const factor: i32 = 3;
+const add = fn(a: i32, b: i32) -> i32 { return a + b; };
+const Item = struct { value: i32 };

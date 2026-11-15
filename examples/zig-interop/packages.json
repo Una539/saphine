@@ -1,0 +1,4 @@
+{"version":1,"modules":[
+    {"name":"named","package_root":"modules","root":"named.zig","imports":[{"name":"arithmetic","module":"math"}]},
+    {"name":"math","package_root":"modules","root":"math.zig","resources":["parts/resource.txt"]}
+]}

@@ -1,0 +1,11 @@
+const Inner = struct { use base: "./lib/access"; };
+const Middle = struct {
+    use inner: Inner;
+    const reveal = fn(self: *Self) -> i32 { return self.value; };
+};
+const Outer = struct { use middle: Middle; public value; };
+const main = fn() -> void {
+    var value = Outer {};
+    print(value.value);
+    print(value.middle.reveal());
+};

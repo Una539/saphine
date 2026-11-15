@@ -1,0 +1,13 @@
+const identity = fn(T: type) -> type { return T; };
+const box = fn(T: type) -> type {
+    return struct { value: T };
+};
+const Count = identity(u16);
+const IntBox = box(Count);
+const TextBox = box([]const u8);
+const main = fn() -> void {
+    const a = IntBox { .value = 42 };
+    const b = TextBox { .value = "hello" };
+    print(a.value);
+    print(b.value);
+};

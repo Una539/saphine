@@ -1,0 +1,75 @@
+use std: "std";
+
+const usage = "usage: find <text> <file>";
+
+const requireArgument = fn(arg: ?[]const u8) -> []const u8 {
+    return match (arg) {
+        .Some(value) => { value },
+        .None => { std.fail(usage); "" },
+    };
+};
+
+const search = fn(needle: []const u8, content: []const u8) -> void {
+    var start: usize = 0;
+    var scanned: usize = 0;
+    var line: usize = 1;
+    var column: usize = 1;
+    std.write("position:");
+
+    while (true) {
+        match (std.find(content, needle, start)) {
+            .Some(offset) => {
+                while (scanned < offset) {
+                    if (content[scanned] == 10) {
+                        line += 1;
+                        column = 1;
+                    } else {
+                        column += 1;
+                    }
+                    scanned += 1;
+                }
+
+                if (start == 0) {
+                    std.write(" (");
+                } else {
+                    std.write(", (");
+                }
+                std.writeNumber(line);
+                std.write(", ");
+                std.writeNumber(column);
+                std.write(")");
+                start = offset + 1;
+            },
+            .None => {
+                std.write("\n");
+                return;
+            },
+        }
+    }
+};
+
+const main = fn() -> void {
+    var heap = std.memory.Heap.new();
+    var arena = std.memory.Arena.new(heap);
+    defer arena.deinit();
+    var args = std.arguments(arena);
+    defer args.deinit();
+
+    const needle = requireArgument(args.next());
+    const path = requireArgument(args.next());
+    match (args.next()) {
+        .Some(_) => { std.fail(usage); },
+        .None => {},
+    }
+    if (needle.len == 0) {
+        std.fail("search text must not be empty");
+        return;
+    }
+    match (std.readFile(arena, path)) {
+        .Some(content) => {
+            defer std.freeBytes(arena, content);
+            search(needle, content);
+        },
+        .None => { std.fail("could not read file"); },
+    }
+};

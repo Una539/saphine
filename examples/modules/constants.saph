@@ -1,0 +1,7 @@
+const main = fn() -> void {
+    const n = 5;
+    const Values = struct { items: [n]i32, var size: i32 = n + 2; };
+    const values = Values { .items = range(0, n) };
+    print(values.items.len);
+    print(values.size);
+};

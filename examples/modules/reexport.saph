@@ -1,0 +1,2 @@
+use api: "./lib/pkg";
+const main = fn() -> void { print(api.value); api.value = 12; print(value); };

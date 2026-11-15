@@ -1,0 +1,8 @@
+const main = fn() -> void {
+    const step: i32 = 3;
+    var total = 10;
+    total += step;
+    print(total);
+    total = 0;
+    print(total);
+};

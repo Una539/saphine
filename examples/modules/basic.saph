@@ -1,0 +1,5 @@
+use math: "./lib/math.saph";
+const main = fn() -> void {
+    print(math.add(2, 4));
+    print(add(math.factor, 5));
+};

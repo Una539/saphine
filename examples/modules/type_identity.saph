@@ -1,0 +1,4 @@
+use first: "./lib/math";
+use second: "./lib/./math.saph";
+const take = fn(item: first.Item) -> void { print(item.value); };
+const main = fn() -> void { take(second.Item { .value = 7 }); };

@@ -1,0 +1,48 @@
+const global_n = 2;
+var Argument:type = i32;
+var Frozen = struct {};
+Frozen.id = fn(self:*Self, x:Argument)->Argument { return x; };
+Argument = bool;
+Frozen.extra = i32;
+Frozen = struct { .., more:i32 };
+var Named = struct { x:i32 };
+const OldNamed = Named;
+Named += take:fn(self:*Self, old:[1]OldNamed, fresh:[1]Self)->i32 {
+    return old[0].x + fresh[0].y;
+};
+Named += y:i32;
+var LegacyNamed = struct { x:i32 };
+const OldLegacyNamed = LegacyNamed;
+LegacyNamed.take = fn(self:*Self, old:[1]OldLegacyNamed, fresh:[1]Self)->i32 {
+    return old[0].x + fresh[0].y;
+};
+LegacyNamed.y = i32;
+const main = fn()->void {
+    const Global = struct { items:[global_n]i32 };
+    const global = Global { .items = [2]i32 {8,9} };
+    print(global.items[1]);
+    var frozen = Frozen { .extra = 1, .more = 2 };
+    print(frozen.id(17));
+    const n = 3;
+    const Alias = i32;
+    var T = struct { var value:i32 = n; xs:[n]i32, read:fn(self:*Self)->i32 { return n; }, id:fn(self:*Self, x:Alias)->Alias { return x; } };
+    {
+        const n = 9;
+        const Alias = bool;
+        T += y:i32;
+        var t = T { .xs = [3]i32 {1,2,3}, .y = 4 };
+        print(t.value);
+        print(t.read());
+        print(t.id(7));
+        T += z:i32;
+        var later = T { .xs = [3]i32 {4,5,6}, .y = 8, .z = 9 };
+        print(later.value);
+        print(later.read());
+    }
+    const old = OldNamed { .x = 10 };
+    var fresh = Named { .x = 20, .y = 30 };
+    print(fresh.take([1]OldNamed {old}, [1]Named {fresh}));
+    const legacy_old = OldLegacyNamed { .x = 11 };
+    var legacy_fresh = LegacyNamed { .x = 21, .y = 31 };
+    print(legacy_fresh.take([1]OldLegacyNamed {legacy_old}, [1]LegacyNamed {legacy_fresh}));
+};

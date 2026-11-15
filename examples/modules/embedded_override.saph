@@ -1,0 +1,6 @@
+const Wrapper = struct { use child: "./lib/trace"; };
+const main = fn() -> void {
+    const original = Wrapper {};
+    const provided = Wrapper { .child = original.child };
+    print(provided.stamp);
+};

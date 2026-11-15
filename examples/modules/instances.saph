@@ -1,0 +1,13 @@
+use left: "./lib/counter";
+use right: "./lib/counter.saph";
+const main = fn() -> void {
+    left.increment();
+    left.increment();
+    print(left.count);
+    print(right.count);
+    var saved = right.increment;
+    saved();
+    print(right.count);
+    print(left.count);
+    print(left.read_secret());
+};

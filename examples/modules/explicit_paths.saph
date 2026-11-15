@@ -1,0 +1,3 @@
+use file: "./lib/ambiguous.saph";
+use directory: "./lib/ambiguous/";
+const main = fn() -> void { print(file.value); print(directory.value); };

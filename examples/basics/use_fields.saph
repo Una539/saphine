@@ -1,0 +1,16 @@
+const Point = struct { x: i32, y: i32 };
+const Sprite = struct {
+    use position: Point;
+    label: []const u8,
+};
+const main = fn() -> void {
+    var sprite = Sprite {
+        .position = .{ .x = 10, .y = 20 },
+        .label = "hero",
+    };
+    sprite.x += 5;
+    sprite.position.y = 30;
+    print(sprite.position.x);
+    print(sprite.y);
+    print(sprite.label);
+};

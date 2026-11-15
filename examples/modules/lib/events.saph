@@ -1,0 +1,2 @@
+var calls: i32 = 0;
+const next = fn() -> i32 { calls += 1; return calls; };

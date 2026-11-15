@@ -1,0 +1,42 @@
+use std: "std";
+const memory = std.memory;
+use zig: "allocator.zig";
+
+const Node = struct { value: u32 };
+const Context = struct { use scratch: memory.Arena; };
+
+const make = fn(context mem: *memory.Arena, value: u32) -> *Node {
+    return mem.create(Node { .value = value });
+};
+const forward = fn(context mem: *memory.Arena) -> *Node {
+    defer print(70);
+    defer print(71);
+    return make(17);
+};
+
+const main = fn() -> void {
+    var heap = memory.Heap.new();
+    var c = Context { .scratch = memory.Arena.new(heap) };
+    var arc = memory.Arc.new(heap);
+    var gc = memory.GC.new();
+    defer gc.collect();
+    defer c.scratch.deinit();
+
+    print(zig.exercise(heap));
+    print(zig.exercise(c));
+    print(zig.exercise(arc));
+    print(zig.exercise(gc));
+    const allocator = c.scratch.allocator();
+    print(zig.exercise(allocator));
+    var wrapped = memory.Heap.new(heap.allocator());
+    print(zig.exercise(wrapped));
+
+    const object = heap.create(Node { .value = 5 });
+    defer heap.destroy(object);
+    print(object.value);
+    using c.scratch;
+    { print(make(9).value); }
+    print(forward().value);
+    print(zig.arcLifecycle(arc));
+    print(zig.gcLifecycle(gc));
+};

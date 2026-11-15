@@ -1,0 +1,153 @@
+use memory: "zig:saphine_runtime";
+use zig: "allocator.zig";
+
+var Node = struct { value: i32, bytes: [3]u8 };
+Node.arc_deinit = fn(self: *Self) -> void { print(self.value); };
+Node.read = fn(self: *Self, delta: i32) -> i32 { return self.value + delta; };
+Node.slice = fn(self: *Self) -> memory.View([]u8) { return self.bytes[0..3]; };
+const Outer = struct { node: Node };
+
+const Link = struct { value: i32, next: ?memory.GcPtr(Self) };
+const Box = struct { arc: memory.ArcPtr(Node) };
+const Next = ?memory.GcPtr(Link);
+var gc_global = memory.GC.new();
+const global_node = gc_global.create(Link { .value = 11, .next = Next.None });
+
+const arcSlice = fn(context arc: *memory.Arc) -> memory.View([]u8) {
+    const node = arc.create(Node { .value = 80, .bytes = [3]u8 { 4, 5, 6 } });
+    return node.slice();
+};
+
+const gcMethod = fn(gc: memory.GC) -> memory.View(fn(delta: i32) -> i32) {
+    const node = gc.create(Node { .value = 30, .bytes = [3]u8 { 1, 2, 3 } });
+    return node.read;
+};
+
+const arcMethod = fn(arc: memory.Arc) -> memory.View(fn(delta: i32) -> i32) {
+    const node = arc.create(Node { .value = 25, .bytes = [3]u8 { 1, 2, 3 } });
+    return node.read;
+};
+
+const gcSlice = fn(gc: memory.GC) -> memory.View([]u8) {
+    const node = gc.create(Node { .value = 0, .bytes = [3]u8 { 4, 5, 6 } });
+    return node.slice();
+};
+
+const arcAddress = fn(arc: memory.Arc) -> memory.View(*Node) {
+    const outer = arc.create(Outer { .node = Node { .value = 37, .bytes = [3]u8 { 1, 2, 3 } } });
+    return &outer.node;
+};
+
+const gcAddress = fn(gc: memory.GC) -> memory.View(*Node) {
+    return &gc.create(Outer { .node = Node { .value = 38, .bytes = [3]u8 { 1, 2, 3 } } }).node;
+};
+
+const makeLink = fn(context gc: *memory.GC, value: i32) -> memory.GcPtr(Link) {
+    return gc.create(Link { .value = value, .next = Next.None });
+};
+
+const returnThroughCollection = fn(gc: memory.GC) -> memory.GcPtr(Link) {
+    defer gc.collect();
+    return gc.create(Link { .value = 72, .next = Next.None });
+};
+
+const branchThroughCollection = fn(gc: memory.GC) -> memory.GcPtr(Link) {
+    return if (true) {
+        defer gc.collect();
+        gc.create(Link { .value = 73, .next = Next.None })
+    } else {
+        gc.create(Link { .value = 0, .next = Next.None })
+    };
+};
+
+const passArc = fn(node: memory.ArcPtr(Node)) -> memory.ArcPtr(Node) {
+    return node;
+};
+
+const combine = fn(left: memory.GcPtr(Link), right: memory.GcPtr(Link)) -> i32 {
+    return left.value + right.value;
+};
+
+const main = fn() -> void {
+    var heap = memory.Heap.new();
+    var arc = memory.Arc.new(heap);
+    var gc = memory.GC.new();
+    const Weak = ?memory.WeakPtr(Node);
+    var weak: Weak = Weak.None;
+    {
+        using arc;
+        const node = arc.create(Node { .value = 90, .bytes = [3]u8 { 1, 2, 3 } });
+        weak = Weak.Some(node.weak());
+        var aggregate = Box { .arc = node };
+        aggregate = aggregate;
+        print(aggregate.arc.value + 1);
+
+        const slice = arcSlice();
+        print(slice[1]);
+    }
+    {
+        const node = passArc(arc.create(Node { .value = 66, .bytes = [3]u8 { 1, 2, 3 } }));
+        print(node.value + 1);
+    }
+    match (weak) {
+        .Some(handle) => {
+            match (handle.upgrade()) {
+                .Some(_) => { print(false); },
+                .None => { print(true); },
+            }
+        },
+        .None => { print(false); },
+    }
+
+    using gc;
+    zig.collectAfter(gc, 1);
+    print(combine(makeLink(19), makeLink(23)));
+    gc.collect();
+    print(global_node.value);
+    {
+        const returned = returnThroughCollection(gc);
+        const branch = branchThroughCollection(gc);
+        gc.collect();
+        print(returned.value);
+        print(branch.value);
+    }
+    gc.collect();
+    const live = zig.liveObjects(gc);
+    {
+        const first = makeLink(1);
+        const second = makeLink(2);
+        first.next = Next.Some(second);
+        second.next = Next.Some(first);
+        gc.collect();
+        print(zig.liveObjects(gc) - live);
+    }
+    gc.collect();
+    print(zig.liveObjects(gc) - live);
+    {
+        const method = gcMethod(gc);
+        gc.collect();
+        print(method(12));
+    }
+    gc.collect();
+    print(zig.liveObjects(gc) - live);
+
+    {
+        const method = arcMethod(arc);
+        print(method(3));
+        const bytes = gcSlice(gc);
+        const address = gcAddress(gc);
+        gc.collect();
+        print(bytes[2]);
+        print(address.value);
+        print(arcAddress(arc).value);
+    }
+    gc.collect();
+    print(zig.liveObjects(gc) - live);
+
+    var registered = gc.root(makeLink(13));
+    gc.collect();
+    print(zig.liveObjects(gc) - live);
+    registered.deinit();
+    gc.collect();
+    print(zig.liveObjects(gc) - live);
+};

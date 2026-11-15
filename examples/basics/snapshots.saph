@@ -1,0 +1,38 @@
+const apply = fn(f: fn(x: i32) -> i32, x: i32) -> i32 {
+    return f(x);
+};
+const get_fn = fn() -> fn(x: i32) -> i32 {
+    return fn(x: i32) -> i32 { return x + 1; };
+};
+const identity = fn(T: type) -> type { return T; };
+
+var Counter = struct { value: i32, };
+Counter.bump = fn(self: *Self) -> void { self.value += 1; };
+Counter.OperatorAdd = fn(a: Self, b: Self) -> Self {
+    return .{ .value = a.value + b.value };
+};
+const V1 = identity(Counter);
+// Rebinding a type value constructs a new type; extension never replaces members.
+Counter = struct { value: i32, name: []const u8 };
+Counter.bump = fn(self: *Self) -> void { self.value += 10; };
+Counter.OperatorAdd = fn(a: Self, b: Self) -> Self {
+    return .{ .value = a.value + b.value + 100, .name = a.name };
+};
+
+const main = fn() -> void {
+    var f = get_fn();
+    print(apply(f, 3));
+    f = fn(x: i32) -> i32 { return x * 2; };
+    print(apply(f, 3));
+    var old = V1 { .value = 1 };
+    var copy = old;
+    var fresh = Counter { .value = 2, .name = "你好" };
+    old.bump();
+    fresh.bump();
+    copy.value += 10;
+    print(old.value);
+    print(copy.value);
+    print((old + old).value);
+    print((fresh + fresh).value);
+    print(fresh.name);
+};

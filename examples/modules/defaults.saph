@@ -1,0 +1,15 @@
+use events: "./lib/events";
+const Values = struct {
+    var first: i32 = events.next();
+    var second: i32 = first + 1;
+};
+const main = fn() -> void {
+    var explicit = Values { .first = 9 };
+    print(events.calls);
+    print(explicit.first);
+    print(explicit.second);
+    var defaults = Values {};
+    print(events.calls);
+    print(defaults.first);
+    print(defaults.second);
+};

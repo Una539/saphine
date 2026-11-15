@@ -1,0 +1,5 @@
+const Wrapper = struct {
+    private use counter: "./lib/counter";
+    const run = fn(self: *Self) -> i32 { self.increment(); return self.count; };
+};
+const main = fn() -> void { var value = Wrapper {}; print(value.run()); };

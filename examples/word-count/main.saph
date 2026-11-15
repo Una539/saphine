@@ -1,0 +1,77 @@
+use std: "std";
+use support: "support.zig";
+
+const count = fn(context mem: *std.memory.Manager, path: []const u8) -> bool {
+    var counts = support.newCounter(mem);
+    defer counts.deinit();
+    return match (support.openWords(mem, path)) {
+        .None => { false },
+        .Some(stream) => {
+            var words = stream;
+            defer words.deinit();
+            while (true) {
+                match (words.next()) {
+                    .Some(word) => {
+                        if (not counts.add(word)) { return false; }
+                    },
+                    .None => { return not words.failed and counts.output(); },
+                }
+            }
+            false
+        },
+    };
+};
+
+const main = fn() -> void {
+    var heap = std.memory.Heap.new();
+    var args = std.arguments(heap);
+    defer args.deinit();
+    const usage = "usage: word-count <heap|arena|arc|gc> <file> [smp]";
+    const mode = match (args.next()) {
+        .Some(value) => { value },
+        .None => { std.fail(usage); "" },
+    };
+    const path = match (args.next()) {
+        .Some(value) => { value },
+        .None => { std.fail(usage); "" },
+    };
+    var smp = false;
+    match (args.next()) {
+        .Some(value) => {
+            if (not support.equal(value, "smp")) { std.fail(usage); }
+            smp = true;
+        },
+        .None => {},
+    }
+    match (args.next()) {
+        .Some(_) => { std.fail(usage); },
+        .None => {},
+    }
+    if (smp) { heap = support.benchmarkHeap(); }
+
+    var ok = false;
+    if (support.equal(mode, "heap")) {
+        ok = count(heap, path);
+    } else {
+        if (support.equal(mode, "arena")) {
+            var arena = std.memory.Arena.new(heap);
+            defer arena.deinit();
+            ok = count(arena, path);
+        } else {
+            if (support.equal(mode, "arc")) {
+                var arc = std.memory.Arc.new(heap);
+                ok = count(arc, path);
+            } else {
+                if (support.equal(mode, "gc")) {
+                    var gc = std.memory.GC.new();
+                    if (smp) { gc = support.benchmarkGc(); }
+                    defer gc.collect();
+                    ok = count(gc, path);
+                } else {
+                    std.fail(usage);
+                }
+            }
+        }
+    }
+    if (not ok) { std.fail("could not count words"); }
+};

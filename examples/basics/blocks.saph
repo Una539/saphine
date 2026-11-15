@@ -1,0 +1,13 @@
+const main = fn() -> void {
+    var count = 1;
+    {
+        const increment = 2;
+        count += increment;
+        {
+            const count = 100;
+            print(count);
+        }
+        print(count);
+    }
+    print(count);
+};

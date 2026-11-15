@@ -1,0 +1,2 @@
+print("child initialized");
+var stamp: i32 = 1;

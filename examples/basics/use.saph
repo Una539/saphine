@@ -1,0 +1,45 @@
+var Defaults = struct { x: i32, };
+Defaults.draw = fn(self: *Self) -> void { self.x += 1; };
+const Printable = Defaults;
+const Plain = struct { use printable: Printable; };
+var Fancy = struct { use printable: Printable; };
+Fancy.draw = fn(self: *Self) -> void { self.x += 10; };
+
+const Abstract = struct { draw: fn(self: *Self) -> void, };
+var Concrete = struct { use abstract: Abstract; };
+Concrete.draw = fn(self: *Self) -> void { print("abstract implemented"); };
+
+const borrow = fn(p: *Printable) -> void { p.draw(); };
+const by_value = fn(p: Printable) -> void {
+    p.draw();
+    print(p.x);
+};
+const run_abstract = fn(p: *Abstract) -> void { p.draw(); };
+const Nested = struct { use inner: Concrete; };
+const forward = fn(p: *Concrete) -> void { run_abstract(p); };
+
+const Both = struct {
+    use left: Printable;
+    use right: Printable;
+};
+
+const main = fn() -> void {
+    var p = Plain { .printable = .{ .x = 0 } };
+    var f = Fancy { .printable = .{ .x = 0 } };
+    borrow(&p);
+    borrow(f);
+    print(p.x);
+    print(f.printable.x);
+    by_value(f);
+    print(f.x);
+    f.printable.draw();
+    print(f.x);
+    var c = Concrete { .abstract = .{} };
+    run_abstract(c);
+    var nested = Nested { .inner = .{ .abstract = .{} } };
+    forward(nested);
+    var both = Both { .left = .{ .x = 1 }, .right = .{ .x = 2 } };
+    both.right.x += 5;
+    print(both.left.x);
+    print(both.right.x);
+};

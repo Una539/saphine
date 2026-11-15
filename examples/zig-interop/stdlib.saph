@@ -1,0 +1,7 @@
+use std: "std";
+const main = fn() -> void {
+    print("implicit");
+    std.print("explicit");
+    const print = fn(value: i32) -> i32 { return value + 1; };
+    std.print(print(41));
+};

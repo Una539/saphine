@@ -1,0 +1,51 @@
+const sum = fn(items: []const i32) -> i32 {
+    var total = 0;
+    for (item in items) {
+        total += item;
+    }
+    return total;
+};
+
+const main = fn() -> void {
+    var items = [3]i32 {1, 2, 3};
+    var copy: [3]i32 = items;
+    copy[0] = 9;
+    print(items[0]);
+    print(copy[0]);
+    print(items.len);
+
+    var inferred: [3]i32 = .{1, 2, 3};
+    inferred[2] = 4;
+    print(inferred[2]);
+
+    const all: []i32 = items[0..];
+    const middle: []i32 = items[1..3];
+    middle[0] = 7;
+    print(items[1]);
+    print(all[1]);
+    print(middle.len);
+    const readonly: []const i32 = all;
+    print(sum(readonly));
+
+    const text: []const u8 = "abc";
+    const bytes: []const u8 = text[1..3];
+    print(text.len);
+    print(bytes[0]);
+    for (byte in bytes) {
+        print(byte);
+    }
+
+    const Pair = [2]i32;
+    const pair = Pair {4, 5};
+    const empty: [0]i32 = .{};
+    const matrix: [2][2]i32 = .{ .{1, 2}, .{3, 4} };
+    const sized: [pair.len]i32 = .{8, 9};
+    var index: usize = 1;
+    print(pair[index]);
+    print(empty.len);
+    print(matrix[1][0]);
+    print(sized.len);
+    index = 0;
+    const portion: []const i32 = readonly[index..middle.len];
+    print(portion.len);
+};

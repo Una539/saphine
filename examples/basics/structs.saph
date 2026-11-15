@@ -1,0 +1,13 @@
+const Color = struct { red: u8, green: u8, blue: u8 };
+const Pixel = struct { color: Color, label: []const u8 };
+const main = fn() -> void {
+    const original = Pixel {
+        .color = .{ .red = 255, .green = 0, .blue = 0 },
+        .label = "pixel",
+    };
+    var copy = original;
+    copy.color.green = 128;
+    print(original.color.green);
+    print(copy.color.green);
+    print(copy.label);
+};

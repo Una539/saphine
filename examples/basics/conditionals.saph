@@ -1,0 +1,37 @@
+const probe = fn() -> bool {
+    print("rhs evaluated");
+    return true;
+};
+
+const category = fn(score: i32) -> []const u8 {
+    if (score >= 90) {
+        return "excellent";
+    } else if (score >= 60) {
+        return "pass";
+    } else {
+        return "retry";
+    }
+};
+
+const main = fn() -> void {
+    var score = 85;
+    if (score < 90) {
+        score += 2;
+    }
+    print(category(score));
+
+    const fee: i32 = if (score >= 80 and not score == 100) {
+        const discount = 5;
+        20 - discount
+    } else {
+        20
+    };
+    print(fee);
+
+    print(false and probe());
+    print(true or probe());
+    print(true and probe());
+    print(not false and false or true);
+    print(score != 100 and score > 0 and score <= 100);
+    print(if (score > 95) { "excellent" } else if (score < 60) { "retry" } else { "pass" });
+};

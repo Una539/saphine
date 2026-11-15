@@ -1,0 +1,90 @@
+var Vec = struct { x: i32, y: i32 };
+Vec.OperatorAdd = fn(a: Self, b: Self) -> Self {
+    return .{ .x = a.x + b.x, .y = a.y + b.y };
+};
+var Number = struct {
+    value: i32,
+    OperatorMul: fn(a: Self, b: Self) -> Self {
+        return .{ .value = a.value * b.value };
+    },
+};
+Number.OperatorSub = fn(a: Self, b: Self) -> Self { return .{ .value = a.value - b.value }; };
+Number.OperatorDiv = fn(a: Self, b: Self) -> Self { return .{ .value = a.value / b.value }; };
+Number.OperatorRem = fn(a: Self, b: Self) -> Self { return .{ .value = a.value % b.value }; };
+Number.OperatorBitAnd = fn(a: Self, b: Self) -> Self { return .{ .value = a.value & b.value }; };
+Number.OperatorBitOr = fn(a: Self, b: Self) -> Self { return .{ .value = a.value | b.value }; };
+Number.OperatorBitXor = fn(a: Self, b: Self) -> Self { return .{ .value = a.value ^ b.value }; };
+Number.OperatorShl = fn(a: Self, b: Self) -> Self { return .{ .value = a.value << b.value }; };
+Number.OperatorShr = fn(a: Self, b: Self) -> Self { return .{ .value = a.value >> b.value }; };
+Number.OperatorPos = fn(a: Self) -> Self { return a; };
+Number.OperatorNeg = fn(a: Self) -> Self { return .{ .value = -a.value }; };
+Number.OperatorBitNot = fn(a: Self) -> Self { return .{ .value = ~a.value }; };
+Number.OperatorNot = fn(a: Self) -> bool { return a.value == 0; };
+Number.OperatorEq = fn(a: Self, b: Self) -> bool { return a.value == b.value; };
+Number.OperatorNe = fn(a: Self, b: Self) -> bool { return a.value != b.value; };
+Number.OperatorLt = fn(a: Self, b: Self) -> bool { return a.value < b.value; };
+Number.OperatorLe = fn(a: Self, b: Self) -> bool { return a.value <= b.value; };
+Number.OperatorGt = fn(a: Self, b: Self) -> bool { return a.value > b.value; };
+Number.OperatorGe = fn(a: Self, b: Self) -> bool { return a.value >= b.value; };
+
+var calls: usize = 0;
+const next_index = fn() -> usize {
+    calls += 1;
+    return 0;
+};
+const remainder = fn(a: i32, b: i32) -> i32 { return a % b; };
+
+const checkOperators = fn() -> void {
+    const a = Number { .value = 9 };
+    const b = Number { .value = 4 };
+    print((a - b).value);
+    print((a * b).value);
+    print((a / b).value);
+    print((a % b).value);
+    print((a & b).value);
+    print((a | b).value);
+    print((a ^ b).value);
+    print((a << b).value);
+    print((a >> b).value);
+    print((+a).value);
+    print((-a).value);
+    print((~a).value);
+    print(not a);
+    print(a == b);
+    print(a != b);
+    print(a < b);
+    print(a <= b);
+    print(a > b);
+    print(a >= b);
+
+    var numbers = [1]Number { a };
+    numbers[next_index()] *= b;
+    print(numbers[0].value);
+    print(calls);
+
+    var bits: u8 = 7;
+    const shift: u16 = 2;
+    bits <<= shift;
+    bits ^= 3;
+    bits &= 15;
+    bits |= 16;
+    bits >>= 1;
+    bits %= 9;
+    bits /= 2;
+    bits -= 1;
+    print(bits);
+
+    print(1 << 2 + 1 | 2 & 1);
+    print(-9 % -4);
+    print(5.5 % 2.0);
+    print(remainder(-2147483648, -1));
+};
+
+const main = fn() -> void {
+    const a = Vec { .x = 2, .y = 3 };
+    const b = Vec { .x = 5, .y = 7 };
+    const c = a + b;
+    print(c.x);
+    print(c.y);
+    checkOperators();
+};

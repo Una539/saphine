@@ -1,0 +1,4 @@
+var count: i32 = 0;
+private const secret: i32 = 11;
+const increment = fn() -> void { count += 1; };
+const read_secret = fn() -> i32 { return secret; };

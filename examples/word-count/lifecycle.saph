@@ -1,0 +1,29 @@
+use std: "std";
+use support: "support.zig";
+use lifecycle: "lifecycle.zig";
+
+const usage = "usage: lifecycle <heap|arena|arc|gc>";
+
+const run = fn(mode: []const u8) -> u64 {
+    if (support.equal(mode, "heap")) { return lifecycle.heapCycle(); }
+    if (support.equal(mode, "arena")) { return lifecycle.arenaCycle(); }
+    if (support.equal(mode, "arc")) { return lifecycle.arcCycle(); }
+    if (support.equal(mode, "gc")) { return lifecycle.gcCycle(); }
+    std.fail(usage);
+    return 0;
+};
+
+const main = fn() -> void {
+    var heap = std.memory.Heap.new();
+    var args = std.arguments(heap);
+    defer args.deinit();
+    const mode = match (args.next()) {
+        .Some(value) => { value },
+        .None => { std.fail(usage); "" },
+    };
+    match (args.next()) {
+        .Some(_) => { std.fail(usage); },
+        .None => {},
+    }
+    print(run(mode));
+};

@@ -1,0 +1,10 @@
+const main = fn() -> void {
+    const minimum: i8 = -128;
+    const mask: u16 = 0xff;
+    const product: u128 = 10000000000000000000 * 2;
+    const fraction: f64 = 2.5 / 2.0;
+    print(minimum);
+    print(mask);
+    print(product);
+    print(fraction);
+};

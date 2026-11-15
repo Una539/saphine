@@ -1,0 +1,17 @@
+var Counter = struct {
+    var count: i32 = 4;
+    const bump = fn(self: *Self) -> void { self.count += 1; };
+};
+const Old = Counter;
+Counter.extra = i32;
+Counter.add = fn(self: *Self, amount: i32) -> void { self.count += amount; };
+const main = fn() -> void {
+    var old = Old {};
+    var current = Counter { .extra = 8 };
+    old.bump();
+    current.bump();
+    current.add(10);
+    print(old.count);
+    print(current.count);
+    print(current.extra);
+};

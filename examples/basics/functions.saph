@@ -1,0 +1,11 @@
+const offset: i32 = 2;
+const add = fn(a: i32, b: i32) -> i32 {
+    return a + b + offset;
+};
+const show = fn(value: i32) -> void {
+    print(value);
+    return;
+};
+const main = fn() -> void {
+    show(add(3, 4));
+};

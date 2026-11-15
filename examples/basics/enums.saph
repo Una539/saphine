@@ -1,0 +1,42 @@
+const Point = struct { x: i32, y: i32 };
+const Message = enum { Quit, Text: []const u8, Number: i32, Move: Point, Items: [2]i32 };
+
+const describe = fn(message: Message) -> []const u8 {
+    return match (message) {
+        .Quit => { "quit" },
+        .Text(text) => { text },
+        .Number(_) => { "number" },
+        .Move(_) => { "move" },
+        .Items(_) => { "items" },
+    };
+};
+
+const main = fn() -> void {
+    const text = Message.Text("hello");
+    print(describe(text));
+    const number = Message.Number(42);
+    match (number) {
+        .Number(n) => { print(n); },
+        default => { print(0); },
+    }
+    const point = Message.Move(Point { .x = 3, .y = 5 });
+    match (point) {
+        .Move(p) => { print(p.x + p.y); },
+        default => {},
+    }
+    const items = Message.Items(.{ 4, 7 });
+    const result: i32 = match (items) {
+        .Items(a) => { a[0] + a[1] },
+        default => { 0 },
+    };
+    print(result);
+    print(describe(Message.Quit));
+    match (Message.Quit) {
+        .Quit => { print("complete"); },
+        .Text(_) => {},
+        .Number(_) => {},
+        .Move(_) => {},
+        .Items(_) => {},
+        default => { print("unreachable"); },
+    }
+};

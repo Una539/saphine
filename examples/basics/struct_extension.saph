@@ -1,0 +1,50 @@
+var T = struct { x: i32 };
+T += take:fn(self: *Self, xs: [1]Self) -> i32 {
+    return xs[0].x;
+};
+T += y:i32;
+const Full = struct {
+    x:i32,
+    take:fn(self:*Self, xs:[1]Self)->i32 { return xs[0].x; },
+    y:i32
+};
+var Defaults = struct {
+    var n:i32 = 7;
+    read:fn(self:*Self)->i32 { return self.n; },
+};
+var Legacy = struct { x:i32 };
+Legacy.take = fn(self:*Self, xs:[1]Self)->i32 { return xs[0].x; };
+Legacy.y = i32;
+var Base = struct { x:i32, read:fn(self:*Self)->i32 { return self.x; } };
+const Outer = struct {
+    use base:Base;
+    read:fn(self:*Self)->i32 { return self.x + 10; },
+};
+const Old = Defaults;
+Defaults = struct { .., extra:i32 };
+const main = fn()->void {
+    var t = T { .x = 1, .y = 2 };
+    print(t.take([1]T {t}));
+    var full = Full { .x = 3, .y = 4 };
+    print(full.take([1]Full {full}));
+    var old = Old {};
+    var current = Defaults { .extra = 9 };
+    print(old.read());
+    print(current.read());
+    print(current.extra);
+    var Local = struct { x:i32 };
+    var before = Local { .x = 11 };
+    Local += y:i32;
+    print(before.x);
+    const after = Local { .x = 12, .y = 13 };
+    print(after.y);
+    var Kind:type = i32;
+    Kind = bool;
+    const flag:Kind = true;
+    print(flag);
+    var legacy = Legacy { .x = 21, .y = 22 };
+    print(legacy.take([1]Legacy {legacy}));
+    var outer = Outer { .base = .{ .x = 5 } };
+    print(outer.read());
+    print(outer.base.read());
+};
